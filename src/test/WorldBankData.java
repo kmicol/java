@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -87,7 +88,7 @@ public class WorldBankData {
 			Double gdpgrow= Double.parseDouble(GDPgrow.replaceAll("[^0-9\\.]+", ""));
 			
 			
-			listofcountries.add( country + " " + pop + "Millon $" + gdp + "Billon " + gdpgrow + "%\n");
+			listofcountries.add( country + " " + pop + " Millon $" + gdp + " Billion " + gdpgrow + "%\n");
 			
 			}catch(Exception e){
 				log.info("No data for country");
@@ -106,7 +107,9 @@ public class WorldBankData {
 		Collections.sort(listofcountries);
 		
 		
+			
 			System.out.println(listofcountries);
+			
 		
 		//log.info("\n" + country + "'s population: " + population + "\nGDP:             " + GDP + "\nGDP growth:       " + GDPgrow + "\n");
 		driver.findElement(By.xpath(".//*[@id='navbar-collapse1']/div/ul/li[10]/a")).click();
