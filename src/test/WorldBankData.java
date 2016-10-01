@@ -1,5 +1,7 @@
 package test;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -7,9 +9,9 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -17,21 +19,25 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class WorldBankData {
 	
 	
-	
+	 	
 
 	public static void main(String[] args) throws InterruptedException  {
 		
-		BasicConfigurator.configure();
-		Logger log = Logger.getLogger("WorldBankData");
-		PropertyConfigurator.configure("log4j.properties");
+	
+		BasicConfigurator.configure();						//
+		Logger log = Logger.getLogger("WorldBankData");		// For custom logging options
+		PropertyConfigurator.configure("log4j.properties"); //
 		
+		// Text needed for Selenium to run firefox
+			System.setProperty("webdriver.gecko.driver", "C:\\Users\\Kevin\\Downloads\\geckodriver-v0.10.0-win64\\geckodriver.exe");
+			WebDriver driver = new FirefoxDriver();
 		
-		System.setProperty("webdriver.gecko.driver", "C:\\Users\\Kevin\\Downloads\\geckodriver-v0.10.0-win64\\geckodriver.exe");
-		WebDriver driver = new FirefoxDriver();
-		
+		//Text needed for chrome
+		//System.setProperty("webdriver.chrome.driver", "C:\\Users\\Kevin\\Downloads\\chromedriver_win32\\chromedriver.exe");
+		//WebDriver driver = new ChromeDriver();
 	
 		 
-		
+		//Text needed to run IE
 		//System.setProperty("webdriver.ie.driver", "C:\\Users\\Kevin\\Downloads\\IEDriverServer_x64_2.53.1\\IEDriverServer.exe");
 		//WebDriver driver = new InternetExplorerDriver();
 		
@@ -39,42 +45,86 @@ public class WorldBankData {
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 	
 
-		
+		//Open Home page
 		driver.get(baseUrl + "/");
-		
+		//click Countries
 		driver.findElement(By.xpath(".//*[@id='hf_header_wrapper']/div/ul[2]/li[9]/a")).click();
-		Thread.sleep(2000);
 		
-		List<WebElement> countryList = driver.findElements(By.xpath(".//*[@id='alphaA' or @id='alphaB' or @id='alphaC' or @id='alphaD' or @id='alphaE' or @id='alphaF' or @id='alphaG' or @id='alphaH' or @id='alphaI' or @id='alphaJ' or @id='alphaK' or @id='alphaL' or @id='alphaM' or @id='alphaN' or @id='alphaO' or @id='alphaP' or @id='alphaQ' or @id='alphaR' or @id='alphaS' or @id='alphaT' or @id='alphaU' or @id='alphaV' or @id='alphaW' or @id='alphaX' or @id='alphaY' or @id='alphaZ']/ul[1]/li[*]"));
+		//wait a few moments
+		Thread.sleep(400);
+		
+		//Get total number of Countries in list 
+		List<WebElement> countryList = driver.findElements(By.xpath(".//*[@class='name-country']//a"));
+		
+		ArrayList<String> listofcountries = new ArrayList<String>();
+		
+		String country = "";
+		String population = "" ;
+		String GDP = "";
+		String GDPgrow = "";
+		
+		//For loop, Clicks on every country, logs data
+		try{
 		
 		System.out.println(countryList.size());
+		for(int i=180; i<=countryList.size();i++){
+			System.out.println(countryList.get(i).getText());
+			WebElement countryLink = countryList.get(i);
+			countryLink.click();
+			
+			//listofcountries.add(driver.findElement(By.xpath("html/body/div[5]/div[1]/div[2]/div[1]/div/div/div/div/div/div/div/div")).getText() +" "+ driver.findElement(By.className("c01v1-country-amounts")).getText() + " "+ driver.findElement(By.xpath("html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div[2]/table/tbody/tr[2]/td[2]")).getText()+ " "+driver.findElement(By.xpath("html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div[2]/table/tbody/tr[3]/td[2]")).getText()); //countryName
+			//listofcountries.add(driver.findElement(By.className("c01v1-country-amounts")).getText());   //countryPopulation
+			//listofcountries.add(driver.findElement(By.xpath("html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div[2]/table/tbody/tr[2]/td[2]")).getText()); // GDP
+			//listofcountries.add(driver.findElement(By.xpath("html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div[2]/table/tbody/tr[3]/td[2]")).getText()); //GDP growth
+			try{
+			country = driver.findElement(By.xpath("html/body/div[5]/div[1]/div[2]/div[1]/div/div/div/div/div/div/div/div")).getText();
+			population = driver.findElement(By.className("c01v1-country-amounts")).getText();
+			GDP = driver.findElement(By.xpath("html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div[2]/table/tbody/tr[2]/td[2]")).getText();
+			GDPgrow = driver.findElement(By.xpath("html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div[2]/table/tbody/tr[3]/td[2]")).getText();
+			
+			Double pop= Double.parseDouble(population.replaceAll("[^0-9\\.]+", ""));
+			Double gdp= Double.parseDouble(GDP.replaceAll("[^0-9\\.]+", ""));
+			Double gdpgrow= Double.parseDouble(GDPgrow.replaceAll("[^0-9\\.]+", ""));
+			
+			
+			listofcountries.add( country + " " + pop + "Millon $" + gdp + "Billon " + gdpgrow + "%\n");
+			
+			}catch(Exception e){
+				log.info("No data for country");
+			}
+			Thread.sleep(100);
+			
+			//Restart loop from Countries page
+			driver.navigate().back();
+			countryList = driver.findElements(By.xpath(".//*[@class='name-country']//a"));
+			Thread.sleep(100);
+		}	}catch(Exception t){
+				log.info("End of list");
+			}
 		
-	//	for(int i=1; i<=countryList.size();i++){
-	//		String n = Integer.toString(i);
-	//		String locator =".//*[@id='alphaA']/ul[%%i%%]/li[1]/ul";
-	//		locator = locator.replaceAll("%%i%%", n);
-	//		String countryList1 = driver.findElement(By.xpath(locator)).getText();
-		//	System.out.println(countryList1);
-	//	}
+		
+		Collections.sort(listofcountries);
+		
+		
+			System.out.println(listofcountries);
+		
+		//log.info("\n" + country + "'s population: " + population + "\nGDP:             " + GDP + "\nGDP growth:       " + GDPgrow + "\n");
+		driver.findElement(By.xpath(".//*[@id='navbar-collapse1']/div/ul/li[10]/a")).click();
+		Thread.sleep(1000);
+		driver.quit();
 		
 		
 		
-		//Thread.sleep(2000);
-		//for(int i=1; i<=2; i++) {
-		//driver.findElement(By.xpath(".//*[@id='alphaA']/ul[1]/li[1]/ul/li/span/a")).click();
-	//	} 
 		
 		
-		//String country = driver.findElement(By.className("c01v1-page-title")).getText();
-		//String population = driver.findElement(By.className("c01v1-country-amounts")).getText();
-		//String GDP = driver.findElement(By.className("c01v1-country-amounts")).getText();
-		//String GDPgrow = driver.findElement(By.className("c01v1-country-amounts")).getText();
-		//log.info("\n" + country + "'s population: " + population + "\nGDP:                    " + GDP + "\nGDP growth:             " + GDPgrow);
-		//Thread.sleep(2000);
 		
-		//for(int i=1; i<=5; i++) {
-		//driver.findElement(By.xpath("//a[contains(text(),'Countries')]")).click();
-		//}
+		
+	
+		
+		
+		
+		
+		
 		
 		
 		
